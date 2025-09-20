@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>I miei biglietti</title>
+    <link rel="stylesheet" href="menu.css">
+</head>
+<body>
+
+    <div class="header">
+        <span>I miei biglietti</span>
+        <img src="src/add.png" alt="Shop" class="shop-icon-header">
+        <span class="plus-icon"></span>
+    </div>
+
+    <div class="ticket-list">
+        <a href="extraurbano1.html" class="ticket-link">
+            <div class="ticket-item">
+                <div class="video-background">
+                    <video autoplay loop muted playsinline>
+                        <source src="src/anim.mp4" type="video/mp4">
+                        Il tuo browser non supporta il video.
+                    </video>
+                </div>
+                <div class="ticket-content">
+                    <div class="ticket-details">
+                        <p class="company-name">ARST</p>
+                        <p class="ticket-info">
+                            <span>Abbonamento annuale studenti extraurbano</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="remaining-time" data-end-date="2026-08-31T23:59:59"></div>
+            </div>
+        </a>
+
+        <a href="extraurbano2.html" class="ticket-link">
+            <div class="ticket-item">
+                <div class="video-background">
+                    <video autoplay loop muted playsinline>
+                        <source src="src/anim.mp4" type="video/mp4">
+                        Il tuo browser non supporta il video.
+                    </video>
+                </div>
+                <div class="ticket-content">
+                    <div class="ticket-details">
+                        <p class="company-name">ARST</p>
+                        <p class="ticket-info">
+                            <span>Abbonamento annuale studenti extraurbano</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="remaining-time" data-end-date="2026-08-31T23:59:59"></div>
+            </div>
+        </a>
+
+        <a href="urbano.html" class="ticket-link">
+            <div class="ticket-item">
+                <div class="video-background">
+                    <video autoplay loop muted playsinline>
+                        <source src="src/anim.mp4" type="video/mp4">
+                        Il tuo browser non supporta il video.
+                    </video>
+                </div>
+                <div class="ticket-content">
+                    <div class="ticket-details">
+                        <p class="company-name">ARST</p>
+                        <p class="ticket-info">
+                            <span>Abbonamento annuale studenti urbano</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="remaining-time" data-end-date="2026-08-31T23:59:59"></div>
+            </div>
+        </a>
+    </div>
+
+    <div class="footer">
+        <a href="#" class="footer-item">
+            <img src="src/shop.png" alt="Shop" class="icon shop-icon">
+            
+        </a>
+        <a href="#" class="footer-item active">
+            <img src="src/biglietti.png" alt="Biglietti" class="icon biglietti-icon">
+            
+        </a>
+        <a href="#" class="footer-item">
+            <img src="src/nome.png" alt="Antonio Frau" class="icon nome-icon">
+            
+        </a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            function updateRemainingTime() {
+                const timeElements = document.querySelectorAll('.remaining-time');
+                const now = new Date();
+
+                timeElements.forEach(element => {
+                    const endDateString = element.getAttribute('data-end-date');
+                    const endDate = new Date(endDateString);
+                    const difference = endDate.getTime() - now.getTime();
+
+                    if (difference <= 0) {
+                        element.textContent = 'Scaduto!';
+                        element.style.color = '#e74c3c';
+                        return;
+                    }
+
+                    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    
+                    element.textContent = `${days} giorni ${hours} ore`;
+                });
+            }
+
+            updateRemainingTime();
+            setInterval(updateRemainingTime, 1000);
+        });
+    </script>
+</body>
+</html>

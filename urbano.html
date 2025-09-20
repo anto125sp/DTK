@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dettaglio Biglietto</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#009688">
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+</head>
+<body>
+
+    <div id="loading-animation-container">
+        <lottie-player
+            id="lottie-animation"
+            src="src/refresh.json"
+            background="transparent"
+            speed="1"
+            style="width: 150px; height: 150px;"
+            autoplay
+            loop>
+        </lottie-player>
+    </div>
+
+    <header class="ticket-header">
+        <a href="index.html" id="open-dropticket">
+            <svg class="back-arrow-svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+        </a>
+        <h2>Abbonamento annuale studenti <br> urbano</h2>
+        <span class="menu-dots" id="edit-toggle">&#8942;</span>
+    </header>
+
+    <section class="video-container">
+        <video autoplay loop muted playsinline>
+            <source src="src/anim.mp4" type="video/mp4">
+            Il tuo browser non supporta i video.
+        </video>
+        <div class="overlay-text">
+            <p class="agency-name">ARST</p>
+            <p class="ticket-type">Abbonamento annuale studenti extraurbano</p>
+        </div>
+        <div class="remaining-time-overlay">
+            <span id="remaining-time"></span>
+        </div>
+    </section>
+
+    <main class="ticket-body">
+        <section class="qr-section">
+            <div class="qr-placeholder">
+                <img src="src/qr.png" alt="QR Code dell'abbonamento">
+            </div>
+            <p class="date-range">01/09/25 - 31/08/26</p>
+        </section>
+
+        <section class="details-list">
+            <div class="detail-row">
+                <span class="label">Codice</span>
+                <span class="value" id="ticket-code">T85096S9D</span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Data di acquisto</span>
+                <span class="value" id="purchase-date">03/09/25</span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Nome</span>
+                <span class="value" id="user-name"></span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Cognome</span>
+                <span class="value" id="user-surname"></span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Tessera ARST</span>
+                <span class="value" id="arst-card"></span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Città</span>
+                <span class="value" id="user-city"></span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Convalida</span>
+                <span class="value">03 set, 12:37</span>
+            </div>
+        </section>
+        
+        <!-- Pulsante Salva (inizialmente nascosto) -->
+        <button id="save-button" style="display: none; margin-top: 20px; padding: 10px; background: #009688; color: white; border: none; border-radius: 5px; width: 100%;">Salva Modifiche</button>
+    </main>
+
+    <script>
+        // Funzione per caricare i dati dal file JSON esterno
+        async function caricaDatiUtente() {
+            try {
+                const response = await fetch('dati_3.json');
+                if (!response.ok) {
+                    throw new Error('Errore nel caricamento dei dati');
+                }
+                const dati = await response.json();
+                
+                // Inserisce i dati nei campi corrispondenti
+                document.getElementById('user-name').textContent = dati.nome;
+                document.getElementById('user-surname').textContent = dati.cognome;
+                document.getElementById('user-city').textContent = dati.citta;
+                document.getElementById('arst-card').textContent = dati.tesseraArst;
+                
+            } catch (error) {
+                console.error('Impossibile caricare i dati:', error);
+                // Mantiene i valori di default in caso di errore
+            }
+        }
+
+        // Funzione per salvare i dati modificati nel file JSON
+        async function salvaDatiUtente(nuoviDati) {
+            try {
+                const response = await fetch('salva_dati.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(nuoviDati)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Errore nel salvataggio dei dati');
+                }
+                
+                alert('Dati salvati con successo!');
+            } catch (error) {
+                console.error('Impossibile salvare i dati:', error);
+                alert('Errore nel salvataggio dei dati');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadingAnimationContainer = document.getElementById('loading-animation-container');
+            
+            // Carica i dati utente all'avvio
+            caricaDatiUtente();
+            
+            // Nasconde l'animazione dopo 2 secondi dal caricamento della pagina
+            setTimeout(() => {
+                loadingAnimationContainer.style.opacity = '0';
+                setTimeout(() => {
+                    loadingAnimationContainer.style.display = 'none';
+                }, 300); // Ritardo per la transizione di opacità
+            }, 2000); // Mostra l'animazione per 2 secondi
+
+            // Funzione per aggiornare il tempo rimanente
+            function updateRemainingTime() {
+                const endDate = new Date('2026-08-31T23:59:59');
+                const now = new Date();
+                const difference = endDate.getTime() - now.getTime();
+
+                if (difference <= 0) {
+                    document.getElementById('remaining-time').textContent = 'Scaduto!';
+                    return;
+                }
+
+                const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+                document.getElementById('remaining-time').textContent = `Rimanenti: ${days} giorni ${hours} ore `;
+            }
+
+            // Aggiorna il tempo ogni secondo
+            setInterval(updateRemainingTime, 1000);
+            updateRemainingTime(); // Chiamata iniziale per evitare il ritardo di 1 secondo
+
+            // Logica per l'apertura dell'app (se installata) con fallback
+            document.getElementById('open-dropticket').addEventListener('click', function(e) {
+                e.preventDefault();
+                const appUrl = 'dropticket://';
+                const storeUrl = 'index.html';
+                window.location.href = appUrl;
+                setTimeout(function() {
+                    window.location.href = storeUrl;
+                }, 500);
+            });
+
+            // Logica per l'editing
+            const editToggle = document.getElementById('edit-toggle');
+            const saveButton = document.getElementById('save-button');
+            const editableFields = [
+                document.getElementById('user-name'),
+                document.getElementById('user-surname'),
+                document.getElementById('arst-card'),
+                document.getElementById('user-city')
+            ];
+
+            let isEditing = false;
+            
+            editToggle.addEventListener('click', () => {
+                isEditing = !isEditing;
+                editableFields.forEach(field => {
+                    if (field) {
+                        field.contentEditable = isEditing;
+                        if (isEditing) {
+                            field.style.border = '1px solid #ccc';
+                            field.style.padding = '2px';
+                            field.style.borderRadius = '3px';
+                        } else {
+                            field.style.border = 'none';
+                            field.style.padding = '0';
+                        }
+                    }
+                });
+
+                // Mostra/nascondi il pulsante Salva
+                saveButton.style.display = isEditing ? 'block' : 'none';
+
+                if (isEditing) {
+                    editToggle.innerHTML = '&#10005;';
+                } else {
+                    editToggle.innerHTML = '&#8942;';
+                }
+            });
+
+            // Gestione del salvataggio
+            saveButton.addEventListener('click', () => {
+                const nuoviDati = {
+                    nome: document.getElementById('user-name').textContent,
+                    cognome: document.getElementById('user-surname').textContent,
+                    tesseraArst: document.getElementById('arst-card').textContent,
+                    citta: document.getElementById('user-city').textContent
+                };
+                
+                salvaDatiUtente(nuoviDati);
+                
+                // Disabilita la modalità modifica
+                isEditing = false;
+                editableFields.forEach(field => {
+                    field.contentEditable = false;
+                    field.style.border = 'none';
+                    field.style.padding = '0';
+                });
+                saveButton.style.display = 'none';
+                editToggle.innerHTML = '&#8942;';
+            });
+        });
+    </script>
+</body>
+</html>
