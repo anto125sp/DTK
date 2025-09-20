@@ -2,7 +2,7 @@
   "name": "DropTicket",
   "short_name": "DropTicket",
   "start_url": ".",
-  "id": "/dtkfinal/",             
+  "id": "/DTK/",             
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#009688",
@@ -21,3 +21,4 @@
   ]
 
 }
+
